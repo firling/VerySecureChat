@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const SettingsSchema = new mongoose.Schema({
-  privateKey: String,
+  publicKey: String,
+  privateKey: Buffer,
+  iv: Buffer,
 });
 
 const UserSchema = new mongoose.Schema({
@@ -59,7 +61,7 @@ UserSchema.methods.matchpasswords = async function (enteredPassword) {
 };
 
 UserSchema.methods.getResetToken = function () {
-  //genrating token
+  //generating token
   const resetToken = crypto.randomBytes(20).toString("hex");
 
   //hash the generated token

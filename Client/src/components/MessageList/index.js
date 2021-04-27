@@ -79,6 +79,12 @@ export default function MessageList(props) {
           message: 'It looks like it wraps exactly as it is supposed to. Lets see what a reply looks like!',
           timestamp: new Date().getTime()
         },
+        {
+          id: 11,
+          author: 'apple',
+          message: 'FIAKFIAKFIAKFIAK',
+          timestamp: new Date().getTime()
+        },
       ]
       setMessages([...messages, ...tempMessages])
   }
@@ -145,7 +151,7 @@ export default function MessageList(props) {
     return(
       <div className="message-list">
         <Toolbar
-          title="Conversation Title"
+          title={`Conversing with ${props.title}`}
           rightItems={[
             <ToolbarButton key="info" icon="ion-ios-information-circle-outline" />,
             <ToolbarButton key="video" icon="ion-ios-videocam" />,

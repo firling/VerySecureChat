@@ -43,6 +43,7 @@ export default function ConversationList(props) {
             <ConversationListItem
               key={conversation.name}
               data={conversation}
+              setTitle={() => props.setTitle(conversation.name)}
             />
           )
         }

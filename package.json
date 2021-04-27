@@ -1,0 +1,23 @@
+{
+  "name": "verysecurechat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server": "cd server && yarn start",
+    "server:watch": "cd server && yarn start:watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/firling/VerySecureChat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/firling/VerySecureChat/issues"
+  },
+  "homepage": "https://github.com/firling/VerySecureChat#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import ConversationList from '../ConversationList';
 import MessageList from '../MessageList';
 import './Messenger.css';
 
 export default function Messenger(props) {
+    const [corresponding, setCorresponding] = useState("")
+
     return (
       <div className="messenger">
         {/* <Toolbar
@@ -26,11 +28,11 @@ export default function Messenger(props) {
         /> */}
 
         <div className="scrollable sidebar">
-          <ConversationList />
+          <ConversationList setTitle={setCorresponding}/>
         </div>
 
         <div className="scrollable content">
-          <MessageList />
+          <MessageList title={corresponding}/>
         </div>
       </div>
     );

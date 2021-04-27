@@ -11,7 +11,8 @@ export default function ConversationListItem(props) {
     const { photo, name, text } = props.data;
 
     return (
-      <div className="conversation-list-item">
+      <div className="conversation-list-item"
+      onClick={props.setTitle}>
         <img className="conversation-photo" src={photo} alt="conversation" />
         <div className="conversation-info">
           <h1 className="conversation-title">{ name }</h1>

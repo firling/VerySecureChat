@@ -57,7 +57,7 @@ const registerUser = async (req, res, next) => {
       },
     });
 
-    const { secretKey, IV } = aesEncryptFormPassword(privateKey, password);
+    const { secretKey, IV } = aesEncryptFromPassword(privateKey, password);
 
     const user = await userModel.create({
       name,

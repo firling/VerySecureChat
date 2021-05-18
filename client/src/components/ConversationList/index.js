@@ -8,23 +8,30 @@ import axios from 'axios';
 import './ConversationList.css';
 
 export default function ConversationList(props) {
-  const [conversations, setConversations] = useState([]);
-  useEffect(() => {
-    getConversations()
-  },[])
+    const [conversations, setConversations] = useState([]);
+    
+    useEffect(() => {
+      getConversations()
+    },[props._id])
 
- const getConversations = () => {
-    axios.get('https://randomuser.me/api/?results=20').then(response => {
-        let newConversations = response.data.results.map(result => {
+    const getConversations = () => {
+      axios.get(`${window.env.SERVER_URL}/api/main/getUsers`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('jwt')}`
+        }
+       }).then(response => {
+        let newConversations = response.data.users.map(result => {
           return {
-            photo: result.picture.large,
-            name: `${result.name.first} ${result.name.last}`,
+            photo: "http://www.gravatar.com/avatar/?d=identicon",
+            name: `${result.name}`,
+            _id: `${result._id}`,
             text: 'Hello world! This is a long message that needs to be truncated.'
           };
         });
         setConversations([...conversations, ...newConversations])
-    });
-  }
+        props.setTitle(newConversations[0].name, newConversations[0]._id)
+      });
+    }
 
     return (
       <div className="conversation-list">
@@ -43,7 +50,7 @@ export default function ConversationList(props) {
             <ConversationListItem
               key={conversation.name}
               data={conversation}
-              setTitle={() => props.setTitle(conversation.name)}
+              setTitle={() => props.setTitle(conversation.name, conversation._id)}
             />
           )
         }

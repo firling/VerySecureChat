@@ -4,7 +4,16 @@ import MessageList from '../MessageList';
 import './Messenger.css';
 
 export default function Messenger(props) {
-    const [corresponding, setCorresponding] = useState("")
+    const [corresponding, setCorresponding] = useState("");
+    const [corresponding_id, setCorresponding_id] = useState("");
+
+    const clickConv = (title, _id) => {
+      setCorresponding(title);
+      setCorresponding_id(_id);
+    }
+
+    useEffect(() => {
+    },[corresponding, corresponding_id])
 
     return (
       <div className="messenger">
@@ -28,11 +37,11 @@ export default function Messenger(props) {
         /> */}
 
         <div className="scrollable sidebar">
-          <ConversationList setTitle={setCorresponding}/>
+          <ConversationList setTitle={clickConv}/>
         </div>
 
         <div className="scrollable content">
-          <MessageList title={corresponding}/>
+          <MessageList title={corresponding} _id={corresponding_id}/>
         </div>
       </div>
     );

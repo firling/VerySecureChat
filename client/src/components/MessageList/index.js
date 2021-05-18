@@ -4,91 +4,54 @@ import Toolbar from '../Toolbar';
 import ToolbarButton from '../ToolbarButton';
 import Message from '../Message';
 import moment from 'moment';
+import axios from 'axios';
 
 import './MessageList.css';
 
-const MY_USER_ID = 'apple';
+const MY_USER_ID = 'author';
 
 export default function MessageList(props) {
   const [messages, setMessages] = useState([])
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    getMessages();
-  },[])
+    if (props._id) {
+      getMessages();
+    }
+    setMsg("")
+  },[props._id])
 
   
   const getMessages = () => {
-     var tempMessages = [
-        {
-          id: 1,
-          author: 'apple',
-          message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 2,
-          author: 'orange',
-          message: 'It looks like it wraps exactly as it is supposed to. Lets see what a reply looks like!',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 3,
-          author: 'orange',
-          message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 4,
-          author: 'apple',
-          message: 'It looks like it wraps exactly as it is supposed to. Lets see what a reply looks like!',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 5,
-          author: 'apple',
-          message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 6,
-          author: 'apple',
-          message: 'It looks like it wraps exactly as it is supposed to. Lets see what a reply looks like!',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 7,
-          author: 'orange',
-          message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 8,
-          author: 'orange',
-          message: 'It looks like it wraps exactly as it is supposed to. Lets see what a reply looks like!',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 9,
-          author: 'apple',
-          message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 10,
-          author: 'orange',
-          message: 'It looks like it wraps exactly as it is supposed to. Lets see what a reply looks like!',
-          timestamp: new Date().getTime()
-        },
-        {
-          id: 11,
-          author: 'apple',
-          message: 'FIAKFIAKFIAKFIAK',
-          timestamp: new Date().getTime()
-        },
-      ]
-      setMessages([...messages, ...tempMessages])
+    axios.get(`${window.env.SERVER_URL}/api/main/getMessages/${props._id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('jwt')}`
+      }
+     }).then(res => {
+        setMessages([...res.data.message])
+      })
   }
 
+  const handleKeyDown = (e) => {
+    if(e.key === "Enter" && msg.length > 0) {
+      console.log("fiak")
+      sendMessage()
+    }
+  } 
+
+  const sendMessage = () => {
+    axios.post(`${window.env.SERVER_URL}/api/main/sendMessage`, {
+      corresponding_id: props._id,
+      message: msg,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('jwt')}`
+      }
+     }).then(_ => {
+       setMsg("");
+     })
+  }
+  
   const renderMessages = () => {
     let i = 0;
     let messageCount = messages.length;
@@ -99,7 +62,8 @@ export default function MessageList(props) {
       let current = messages[i];
       let next = messages[i + 1];
       let isMine = current.author === MY_USER_ID;
-      let currentMoment = moment(current.timestamp);
+      console.log(current.author);
+      let currentMoment = moment(current.createdAt);
       let prevBySameAuthor = false;
       let nextBySameAuthor = false;
       let startsSequence = true;
@@ -161,7 +125,7 @@ export default function MessageList(props) {
 
         <div className="message-list-container">{renderMessages()}</div>
 
-        <Compose rightItems={[
+        <Compose msg={msg} setMsg={setMsg} handleKeyDown={handleKeyDown} rightItems={[
           <ToolbarButton key="photo" icon="ion-ios-camera" />,
           <ToolbarButton key="image" icon="ion-ios-image" />,
           <ToolbarButton key="audio" icon="ion-ios-mic" />,

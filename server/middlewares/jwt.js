@@ -9,7 +9,6 @@ const authenticateToken = async (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
     // console.log(user);
-    // console.log(err);
     if (err) return res.sendStatus(403);
     req.user = await userModel.findById(user.id);
     next();

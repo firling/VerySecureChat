@@ -6,7 +6,7 @@ import axios from 'axios';
 
 export default function App() {
 
-  const [isLogged, setIsLogged] = useState(false);
+  const [isLogged, setIsLogged] = useState();
 
   useEffect(() => {
     axios.get(`${window.env.SERVER_URL}/api/auth/check`, {
@@ -19,6 +19,7 @@ export default function App() {
         setIsLogged(false);
       })
   },[])
+  
 
   if(!isLogged) {
     return <Login setIsLogged={setIsLogged} />

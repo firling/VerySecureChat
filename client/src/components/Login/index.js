@@ -32,6 +32,7 @@ export default function Login(props) {
         }).then(res => {
             localStorage.setItem('jwt', res.data.token);
             displayNotif("Success");
+            props.setIsLogged(true);
         }).catch(err => {
             displayNotif(err.response.data, "error");
         });
@@ -45,6 +46,7 @@ export default function Login(props) {
         }).then(res => {
             localStorage.setItem('jwt', res.data.token);
             displayNotif("Success");
+            props.setIsLogged(true);
         }).catch(err => {
             displayNotif(err.response.data, "error");
         });

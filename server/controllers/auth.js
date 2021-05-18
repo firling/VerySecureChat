@@ -81,7 +81,14 @@ const registerUser = async (req, res, next) => {
   }
 };
 
+const checkUser = async (req, res, next) => {
+  return res.status(200).json({
+    success: true
+  })
+}
+
 module.exports = {
   loginUser,
   registerUser,
+  checkUser,
 };

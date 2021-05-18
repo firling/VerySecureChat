@@ -46,7 +46,7 @@ const sendMessage = async (req, res, next) => {
         message: message
     })
 
-    return res.status(200)
+    return res.status(200).end()
 }
 
 module.exports = {

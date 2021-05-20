@@ -41,7 +41,7 @@ export default function Messenger(props) {
         </div>
 
         <div className="scrollable content">
-          <MessageList title={corresponding} _id={corresponding_id}/>
+          <MessageList title={corresponding} _id={corresponding_id} socket={props.socket}/>
         </div>
       </div>
     );

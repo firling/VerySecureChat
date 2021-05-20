@@ -31,6 +31,7 @@ export default function Login(props) {
             password
         }).then(res => {
             localStorage.setItem('jwt', res.data.token);
+            props.socket.emit("send_id", res.data._id);
             displayNotif("Success");
             props.setIsLogged(true);
         }).catch(err => {
@@ -45,6 +46,7 @@ export default function Login(props) {
             password
         }).then(res => {
             localStorage.setItem('jwt', res.data.token);
+            props.socket.emit("send_id", res.data._id);
             displayNotif("Success");
             props.setIsLogged(true);
         }).catch(err => {

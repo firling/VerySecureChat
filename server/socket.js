@@ -17,7 +17,6 @@ exports.initSocketServer = (server, { path }) => {
       console.log("disconnection", sock.id);
     })
     sock.on('send_id', (data) => {
-      console.log(data);
       corresponding[data] = sock.id;
     })
   })
@@ -29,6 +28,11 @@ exports.getIo = () => {
 
 exports.getCorresponding = () => {
   return corresponding
+}
+
+exports.getClients = async () => {
+  const resp = await io.allSockets();
+  return [...resp];
 }
 
 exports.ioEmit = (arg, msg = "") => {

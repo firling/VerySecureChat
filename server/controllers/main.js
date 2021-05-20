@@ -11,6 +11,15 @@ const getUsers = async (req, res, next) => {
     });
 }
 
+const compare = (a, b) => {
+    if (a.createdAt < b.createdAt)
+        return -1;
+    if (a.createdAt > b.createdAt)
+        return 1;
+    
+    return 0;
+}
+
 const getMessages = async (req, res, next) => {
     const { corresponding_id } = req.params;
     const messageSender = await messageModel.find({
@@ -32,8 +41,13 @@ const getMessages = async (req, res, next) => {
         sender: corresponding_id,
         receiver: req.user._id,
     })
+
+    const message = [...newMessageSender, ...messageReceiver]
+
+    message.sort(compare);
+
     return res.status(200).json({
-        message: [...newMessageSender, ...messageReceiver]
+        message
     })
 }
 
@@ -45,6 +59,11 @@ const sendMessage = async (req, res, next) => {
         receiver: corresponding_id,
         message: message
     })
+
+    if (socket.getCorresponding()[corresponding_id]) {
+        console.log(socket.getCorresponding()[corresponding_id]);
+        socket.getIo().to(socket.getCorresponding()[corresponding_id]).emit("newMessage");
+    }
 
     return res.status(200).end()
 }

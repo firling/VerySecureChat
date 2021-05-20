@@ -21,6 +21,9 @@ export default function MessageList(props) {
     setMsg("")
   },[props._id])
 
+  props.socket.on("newMessage", () => {
+    getMessages();
+  })
   
   const getMessages = () => {
     axios.get(`${window.env.SERVER_URL}/api/main/getMessages/${props._id}`, {
@@ -28,13 +31,12 @@ export default function MessageList(props) {
         Authorization: `Bearer ${localStorage.getItem('jwt')}`
       }
      }).then(res => {
-        setMessages([...res.data.message])
+        setMessages(res.data.message)
       })
   }
 
   const handleKeyDown = (e) => {
     if(e.key === "Enter" && msg.length > 0) {
-      console.log("fiak")
       sendMessage()
     }
   } 
@@ -63,7 +65,6 @@ export default function MessageList(props) {
       let current = messages[i];
       let next = messages[i + 1];
       let isMine = current.author === MY_USER_ID;
-      console.log(current.author);
       let currentMoment = moment(current.createdAt);
       let prevBySameAuthor = false;
       let nextBySameAuthor = false;

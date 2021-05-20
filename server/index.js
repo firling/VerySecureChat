@@ -1,8 +1,8 @@
 const express = require("express");
-const socket = require("socket.io");
 const color = require("colors");
 const dotenv = require("dotenv").config();
 const { connect } = require("./db");
+const socket = require('./socket.js');
 var cors = require('cors')
 
 const authRouter = require("./routes/auth");
@@ -10,7 +10,7 @@ const settingsRouter = require("./routes/settings");
 const mainRouter = require("./routes/main");
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = 8000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -28,9 +28,4 @@ const server = app.listen(port, () => {
   connect();
 });
 
-const io = socket(server);
-
-//everything related to io will go here
-io.on("connection", (socket) => {
-  console.log("connection");
-});
+socket.initSocketServer(server, {path: '/ws'});

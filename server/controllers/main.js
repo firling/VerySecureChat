@@ -1,6 +1,6 @@
 const userModel = require("../models/user.js");
 const messageModel = require("../models/message.js");
-
+const socket = require("../socket");
 
 const getUsers = async (req, res, next) => {
     const users = await userModel.find({
@@ -49,8 +49,20 @@ const sendMessage = async (req, res, next) => {
     return res.status(200).end()
 }
 
+const test = async (req, res, next) => {
+    const io = socket.getIo();
+
+    const resp = await io.allSockets();
+
+    return res.status(200).json({
+        clients: [...resp],
+        corresponding: socket.getCorresponding()
+    })
+}
+
 module.exports = {
     getUsers,
     getMessages,
-    sendMessage
+    sendMessage,
+    test,
 };

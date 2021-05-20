@@ -49,6 +49,7 @@ export default function MessageList(props) {
       }
      }).then(_ => {
        setMsg("");
+       getMessages();
      })
   }
   

@@ -1,6 +1,7 @@
 const userModel = require("../models/user.js");
 const messageModel = require("../models/message.js");
 const socket = require("../socket");
+const { encryptedData, aesDecrypt } = require("../utils/crypto.js");
 
 const getUsers = async (req, res, next) => {
   const users = await userModel
@@ -21,22 +22,29 @@ const compare = (a, b) => {
 };
 
 const getMessages = async (req, res, next) => {
-  const { corresponding_id } = req.params;
+  const { corresponding_id, localPassword } = req.params;
   const messageSender = await messageModel.find({
     sender: req.user._id,
     receiver: corresponding_id,
   });
-  newMessageSender = messageSender.map((elt) => {
+
+  const decryptedReceiverPrivateKey = aesDecrypt(
+    localPassword,
+    process.env.SERVER_SECRET
+  );
+
+  const newMessageSender = messageSender.map((elt) => {
     elt.author = "author";
     return {
       _id: elt._id,
       author: "author",
       sender: elt.sender,
       receiver: elt.receiver,
-      message: elt.message,
+      message: decryptedData(elt.receiverMessage, decryptedReceiverPrivateKey),
       createdAt: elt.createdAt,
     };
   });
+
   const messageReceiver = await messageModel.find({
     sender: corresponding_id,
     receiver: req.user._id,
@@ -61,11 +69,14 @@ const sendMessage = async (req, res, next) => {
   const { publicKey: receiverPublicKey, privateKey: receiverPrivateKey } =
     receiver.settings;
 
+  const encryptedForReceiver = encryptedData(message, receiverPublicKey);
+  const encryptedForSender = encryptedData(message, senderPublicKey);
+
   messageModel.create({
     sender: req.user._id,
     receiver: corresponding_id,
-    senderMessage: message,
-    receiverMessage: message,
+    senderMessage: encryptedForSender,
+    receiverMessage: encryptedForReceiver,
   });
 
   if (socket.getCorresponding()[corresponding_id]) {

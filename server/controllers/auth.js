@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const { aesEncryptFromPassword } = require("../utils/crypto");
+const { aesEncryptFromPassword, aesDecrypt } = require("../utils/crypto");
 const userModel = require("../models/user.js");
 
 const loginUser = async (req, res, next) => {
@@ -30,10 +30,20 @@ const loginUser = async (req, res, next) => {
 
     const token = user.getSignedJwtToken();
 
+    const decryptedPrivateKey = aesDecrypt(
+      user.settings.privateKey,
+      password,
+      user.settings.iv
+    );
+
     return res.status(200).json({
       sucess: true,
       token,
       _id: user._id,
+      localPassword: aesEncryptFromPassword(
+        decryptedPrivateKey,
+        process.env.SERVER_SECRET
+      ),
     });
   } catch (error) {
     next(error);
@@ -76,7 +86,7 @@ const registerUser = async (req, res, next) => {
     res.status(200).json({
       sucess: true,
       token,
-      _id: user._id
+      _id: user._id,
     });
   } catch (error) {
     next(error);
@@ -86,9 +96,9 @@ const registerUser = async (req, res, next) => {
 const checkUser = async (req, res, next) => {
   return res.status(200).json({
     success: true,
-    _id: req.user._id
-  })
-}
+    _id: req.user._id,
+  });
+};
 
 module.exports = {
   loginUser,

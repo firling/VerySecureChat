@@ -15,7 +15,6 @@ export default function Login(props) {
     const [notif, setNotif] = useState("");
     const [success, setSuccess] = useState("");
 
-
     const displayNotif = (msg, suc = "success") => {
         setNotif(msg);
         setSuccess(suc);
@@ -31,6 +30,7 @@ export default function Login(props) {
             password
         }).then(res => {
             localStorage.setItem('jwt', res.data.token);
+            localStorage.setItem('localPassword', res.data.localPassword)
             props.socket.emit("send_id", res.data._id);
             displayNotif("Success");
             props.setIsLogged(true);
@@ -46,6 +46,7 @@ export default function Login(props) {
             password
         }).then(res => {
             localStorage.setItem('jwt', res.data.token);
+            localStorage.setItem('localPassword', res.data.localPassword)
             props.socket.emit("send_id", res.data._id);
             displayNotif("Success");
             props.setIsLogged(true);

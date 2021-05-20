@@ -26,7 +26,7 @@ export default function MessageList(props) {
   })
   
   const getMessages = () => {
-    axios.get(`${window.env.SERVER_URL}/api/main/getMessages/${props._id}`, {
+    axios.get(`${window.env.SERVER_URL}/api/main/getMessages/${props._id}/${localStorage.getItem('localPassword')}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('jwt')}`
       }

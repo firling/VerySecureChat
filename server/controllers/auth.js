@@ -83,10 +83,20 @@ const registerUser = async (req, res, next) => {
 
     const token = user.getSignedJwtToken();
 
+    const decryptedPrivateKey = aesDecrypt(
+      user.settings.privateKey,
+      password,
+      user.settings.iv
+    );
+
     res.status(200).json({
       sucess: true,
       token,
       _id: user._id,
+      localPassword: aesEncryptFromPassword(
+        decryptedPrivateKey,
+        process.env.SERVER_SECRET
+      ),
     });
   } catch (error) {
     next(error);

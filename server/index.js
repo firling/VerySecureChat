@@ -2,8 +2,8 @@ const express = require("express");
 const color = require("colors");
 const dotenv = require("dotenv").config();
 const { connect } = require("./db");
-const socket = require('./socket.js');
-var cors = require('cors')
+const socket = require("./socket.js");
+var cors = require("cors");
 
 const authRouter = require("./routes/auth");
 const settingsRouter = require("./routes/settings");
@@ -14,7 +14,7 @@ const port = 8000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors())
+app.use(cors());
 
 app.use("/api/auth", authRouter);
 app.use("/api/settings", settingsRouter);
@@ -28,4 +28,4 @@ const server = app.listen(port, () => {
   connect();
 });
 
-socket.initSocketServer(server, {path: '/ws'});
+socket.initSocketServer(server, { path: "/ws" });

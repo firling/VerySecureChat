@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const algorithm = "aes-256-cbc";
+const NodeRSA = require("node-rsa");
 
 function aesEncryptFromPassword(data, password) {
   const iv = crypto.randomBytes(16);
@@ -35,39 +36,31 @@ function aesDecrypt(data, password, iv) {
   return dec.toString("utf8");
 }
 
-const encryptedData = (data, publicKey) => {
-  return crypto
-    .publicEncrypt(
-      {
-        key: publicKey,
-        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-        oaepHash: "sha256",
-      },
-      // We convert the data string to a buffer using `Buffer.from`
-      Buffer.from(data)
-    )
-    .toString("base64");
+const RSAgenerateKeyPair = () => {
+  const key = new NodeRSA({ b: 512 });
+  key.generateKeyPair();
+  return {
+    publicKey: key.exportKey("pkcs1-public-pem"),
+    privateKey: key.exportKey("pkcs1-private-pem"),
+  };
 };
 
-const decryptedData = (encryptedData, privateKey) => {
-  return crypto
-    .privateDecrypt(
-      {
-        key: privateKey,
-        // In order to decrypt the data, we need to specify the
-        // same hashing function and padding scheme that we used to
-        // encrypt the data in the previous step
-        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-        oaepHash: "sha256",
-      },
-      encryptedData
-    )
-    .toString("base64");
+const encryptRSA = (keyData, data) => {
+  const key = new NodeRSA(keyData);
+  //key.importKey(keyData, "pkcs1-public-pem");
+  return key.encrypt(data, "base64");
+};
+
+const decryptRSA = (keyData, data) => {
+  const key = new NodeRSA(keyData);
+  //key.importKey(keyData, "pkcs1-public-pem");
+  return key.decrypt(data, "utf8");
 };
 
 module.exports = {
   aesEncryptFromPassword,
   aesDecrypt,
-  encryptedData,
-  decryptedData,
+  RSAgenerateKeyPair,
+  encryptRSA,
+  decryptRSA,
 };

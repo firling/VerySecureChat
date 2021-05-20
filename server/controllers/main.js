@@ -1,7 +1,7 @@
 const userModel = require("../models/user.js");
 const messageModel = require("../models/message.js");
 const socket = require("../socket");
-const { encryptedData, aesDecrypt } = require("../utils/crypto.js");
+const { encryptRSA, aesDecrypt, decryptRSA } = require("../utils/crypto.js");
 
 const getUsers = async (req, res, next) => {
   const users = await userModel
@@ -22,16 +22,15 @@ const compare = (a, b) => {
 };
 
 const getMessages = async (req, res, next) => {
-  const { corresponding_id, localPassword } = req.params;
+  const { corresponding_id } = req.params;
+  const { localpassword, iv } = req.headers;
+
   const messageSender = await messageModel.find({
     sender: req.user._id,
     receiver: corresponding_id,
   });
 
-  const decryptedReceiverPrivateKey = aesDecrypt(
-    localPassword,
-    process.env.SERVER_SECRET
-  );
+  const user = await userModel.findOne({ _id: req.user._id });
 
   const newMessageSender = messageSender.map((elt) => {
     elt.author = "author";
@@ -40,7 +39,7 @@ const getMessages = async (req, res, next) => {
       author: "author",
       sender: elt.sender,
       receiver: elt.receiver,
-      message: decryptedData(elt.receiverMessage, decryptedReceiverPrivateKey),
+      message: decryptRSA(user.settings.privateKey, elt.senderMessage),
       createdAt: elt.createdAt,
     };
   });
@@ -50,7 +49,17 @@ const getMessages = async (req, res, next) => {
     receiver: req.user._id,
   });
 
-  const message = [...newMessageSender, ...messageReceiver];
+  const newMessageReceiver = messageReceiver.map((elt) => {
+    return {
+      _id: elt._id,
+      sender: elt.sender,
+      receiver: elt.receiver,
+      message: decryptRSA(user.settings.privateKey, elt.receiverMessage),
+      createdAt: elt.createdAt,
+    };
+  });
+
+  const message = [...newMessageSender, ...newMessageReceiver];
 
   message.sort(compare);
 
@@ -64,13 +73,14 @@ const sendMessage = async (req, res, next) => {
 
   const sender = await userModel.findOne({ _id: req.user._id });
   const receiver = await userModel.findOne({ _id: corresponding_id });
+
   const { publicKey: senderPublicKey, privateKey: senderPrivateKey } =
     sender.settings;
   const { publicKey: receiverPublicKey, privateKey: receiverPrivateKey } =
     receiver.settings;
 
-  const encryptedForReceiver = encryptedData(message, receiverPublicKey);
-  const encryptedForSender = encryptedData(message, senderPublicKey);
+  const encryptedForReceiver = encryptRSA(receiverPublicKey, message);
+  const encryptedForSender = encryptRSA(senderPublicKey, message);
 
   messageModel.create({
     sender: req.user._id,

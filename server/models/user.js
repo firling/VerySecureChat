@@ -5,8 +5,8 @@ const crypto = require("crypto");
 
 const SettingsSchema = new mongoose.Schema({
   publicKey: String,
-  privateKey: Buffer,
-  iv: Buffer,
+  privateKey: String,
+  iv: String,
 });
 
 const UserSchema = new mongoose.Schema({
@@ -18,15 +18,15 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please add an email"],
     unique: true,
-    match: [
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      "Please add an valid email",
-    ],
+    // match: [
+    //   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    //   "Please add an valid email",
+    // ],
   },
   password: {
     type: String,
     required: [true, "Please provide a password"],
-    minlength: 6,
+    minlength: 2,
     select: false,
   },
   settings: SettingsSchema,
@@ -50,9 +50,17 @@ UserSchema.pre("save", async function (next) {
 
 UserSchema.methods.getSignedJwtToken = function () {
   //this cannot be accesed in statics ?? there are only available in methods ??
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
-  });
+  // return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+  //   expiresIn: process.env.JWT_EXPIRE,
+  // });
+
+  return jwt.sign(
+    { id: this._id },
+    "PkEWmGDsfLvpReYnWmLUvasKUALeBdwnh4yJfPkUWGcwtnYEBsxJKVvGMrmErEq3",
+    {
+      expiresIn: "604800",
+    }
+  );
 };
 
 UserSchema.methods.matchpasswords = async function (enteredPassword) {

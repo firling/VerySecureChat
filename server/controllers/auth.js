@@ -1,5 +1,8 @@
 const crypto = require("crypto");
-const { aesEncryptFromPassword, aesDecrypt } = require("../utils/crypto");
+const {
+  aesEncryptFromPassword,
+  RSAgenerateKeyPair,
+} = require("../utils/crypto");
 const userModel = require("../models/user.js");
 
 const loginUser = async (req, res, next) => {
@@ -30,20 +33,17 @@ const loginUser = async (req, res, next) => {
 
     const token = user.getSignedJwtToken();
 
-    const decryptedPrivateKey = aesDecrypt(
-      user.settings.privateKey,
+    const { secretKey, IV } = aesEncryptFromPassword(
       password,
-      user.settings.iv
+      process.env.SERVER_SECRET
     );
 
     return res.status(200).json({
       sucess: true,
       token,
       _id: user._id,
-      localPassword: aesEncryptFromPassword(
-        decryptedPrivateKey,
-        process.env.SERVER_SECRET
-      ),
+      localPassword: secretKey.toString("base64"),
+      iv: IV.toString("base64"),
     });
   } catch (error) {
     next(error);
@@ -52,23 +52,10 @@ const loginUser = async (req, res, next) => {
 
 const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
+    const { publicKey, privateKey } = RSAgenerateKeyPair();
 
-    const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-      modulusLength: 4096,
-      publicKeyEncoding: {
-        type: "spki",
-        format: "pem",
-      },
-      privateKeyEncoding: {
-        type: "pkcs8",
-        format: "pem",
-        cipher: "aes-256-cbc",
-        passphrase: "top secret",
-      },
-    });
-
-    const { secretKey, IV } = aesEncryptFromPassword(privateKey, password);
+    //const { secretKey, IV } = aesEncryptFromPassword(privateKey, password);
 
     const user = await userModel.create({
       name,
@@ -76,27 +63,24 @@ const registerUser = async (req, res, next) => {
       password,
       settings: {
         publicKey: publicKey,
-        privateKey: secretKey,
-        iv: IV,
+        privateKey: privateKey,
+        //iv: IV.toString("base64"),
       },
     });
 
     const token = user.getSignedJwtToken();
 
-    const decryptedPrivateKey = aesDecrypt(
-      user.settings.privateKey,
+    const { secretKey: firstSecretKey, IV: firstIV } = aesEncryptFromPassword(
       password,
-      user.settings.iv
+      process.env.SERVER_SECRET
     );
 
     res.status(200).json({
       sucess: true,
       token,
       _id: user._id,
-      localPassword: aesEncryptFromPassword(
-        decryptedPrivateKey,
-        process.env.SERVER_SECRET
-      ),
+      localPassword: firstSecretKey.toString("base64"),
+      iv: firstIV.toString("base64"),
     });
   } catch (error) {
     next(error);

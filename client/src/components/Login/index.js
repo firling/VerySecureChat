@@ -73,7 +73,7 @@ export default function Login(props) {
         props.setIsLogged(true);
       })
       .catch((err) => {
-        displayNotif(err.response.data, "error");
+        //displayNotif(err.response.data, "error");
       });
   };
 

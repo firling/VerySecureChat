@@ -55,7 +55,7 @@ const registerUser = async (req, res, next) => {
     const { name, email, password } = req.body;
     const { publicKey, privateKey } = RSAgenerateKeyPair();
 
-    //const { secretKey, IV } = aesEncryptFromPassword(privateKey, password);
+    const { secretKey, IV } = aesEncryptFromPassword(privateKey, password);
 
     const user = await userModel.create({
       name,
@@ -63,8 +63,8 @@ const registerUser = async (req, res, next) => {
       password,
       settings: {
         publicKey: publicKey,
-        privateKey: privateKey,
-        //iv: IV.toString("base64"),
+        privateKey: secretKey.toString('base64'),
+        iv: IV.toString('base64'),
       },
     });
 

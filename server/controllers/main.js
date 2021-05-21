@@ -24,13 +24,15 @@ const compare = (a, b) => {
 const getMessages = async (req, res, next) => {
   const { corresponding_id } = req.params;
   const { localpassword, iv } = req.headers;
+  const user = await userModel.findOne({ _id: req.user._id });
+
+  const userPassword = aesDecrypt(Buffer.from(localpassword, 'base64'), process.env.SERVER_SECRET, Buffer.from(iv, 'base64'));
+  const userPrivateKey = aesDecrypt(Buffer.from(user.settings.privateKey, 'base64'), userPassword, Buffer.from(user.settings.iv, 'base64'));
 
   const messageSender = await messageModel.find({
     sender: req.user._id,
     receiver: corresponding_id,
   });
-
-  const user = await userModel.findOne({ _id: req.user._id });
 
   const newMessageSender = messageSender.map((elt) => {
     elt.author = "author";
@@ -39,7 +41,7 @@ const getMessages = async (req, res, next) => {
       author: "author",
       sender: elt.sender,
       receiver: elt.receiver,
-      message: decryptRSA(user.settings.privateKey, elt.senderMessage),
+      message: decryptRSA(userPrivateKey, elt.senderMessage),
       createdAt: elt.createdAt,
     };
   });
@@ -54,7 +56,7 @@ const getMessages = async (req, res, next) => {
       _id: elt._id,
       sender: elt.sender,
       receiver: elt.receiver,
-      message: decryptRSA(user.settings.privateKey, elt.receiverMessage),
+      message: decryptRSA(userPrivateKey, elt.receiverMessage),
       createdAt: elt.createdAt,
     };
   });

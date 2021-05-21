@@ -28,9 +28,6 @@ const loginUser = async (req, res, next) => {
       return res.status(400).json("Invalid credentials");
     }
 
-    //NOTE: static are called on model so , it will called upon userModel
-    //methods are called on the actual user data , so it will call on 'user'
-
     const token = user.getSignedJwtToken();
 
     const { secretKey, IV } = aesEncryptFromPassword(

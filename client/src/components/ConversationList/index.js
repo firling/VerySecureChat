@@ -11,8 +11,8 @@ export default function ConversationList(props) {
   const [conversations, setConversations] = useState([]);
 
   useEffect(() => {
-    getConversations();
-  }, [props._id]);
+    if (!props._id) getConversations();
+  }, []);
 
   const getConversations = () => {
     axios

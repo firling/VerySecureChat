@@ -37,7 +37,7 @@ export default function Messenger(props) {
         /> */}
 
         <div className="scrollable sidebar">
-          <ConversationList setTitle={clickConv}/>
+          <ConversationList setTitle={clickConv} _id={corresponding_id}/>
         </div>
 
         <div className="scrollable content">
